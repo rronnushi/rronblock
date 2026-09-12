@@ -425,13 +425,17 @@
 
         <!-- Randomization Generator Variations -->
         <div class="section">
-          <div class="section-title">Generative Variations</div>
+          <div class="section-title">Generative Archetypes</div>
           <div class="row">
             <label>Archetype</label>
             <select id="randomStyleSelect">
               <option value="balanced">Balanced Construct (Classic)</option>
+              <option value="gradients_only">Atmospheric Gradients Only</option>
               <option value="dense">Dense Op-Art Grids</option>
-              <option value="atmospheric">Atmospheric & Chevrons</option>
+              <option value="atmospheric">Atmosphere & Chevrons</option>
+              <option value="wedges">Wedge Horizon (Saw Waves)</option>
+              <option value="interference">Pinstripe Interference</option>
+              <option value="mondrian">Mondrian / Bauhaus Planes</option>
               <option value="chaos">Radical Geometry</option>
             </select>
           </div>
@@ -491,7 +495,6 @@
   </div>
 
   <script>
-    // Expanded curated palettes
     const PALETTES = {
       electric: ['#0077ff', '#ff4d00', '#0a0d14', '#e6e4df', '#101e36', '#6f7480'],
       klein: ['#002fa7', '#e8a938', '#0b0c10', '#f4ede2', '#1a3b8b', '#7c8b9e'],
@@ -882,7 +885,6 @@
       render();
     }
 
-    // --- Enhanced Randomization Suite ---
     function randomizeBySelectedArchetype() {
       const style = document.getElementById('randomStyleSelect').value;
       randomizeArtwork(style);
@@ -899,6 +901,7 @@
       return [c1, c2];
     }
 
+    // --- Generator Variations Engine ---
     function randomizeArtwork(archetype = 'balanced') {
       const paletteKeys = Object.keys(PALETTES);
       const chosenKey = paletteKeys[Math.floor(Math.random() * paletteKeys.length)];
@@ -907,7 +910,7 @@
 
       const newLayers = [];
 
-      // Background
+      // Solid background baseline
       newLayers.push({
         id: 'bg_' + Date.now(),
         type: 'solid',
@@ -915,12 +918,145 @@
         color1: pal[Math.floor(Math.random() * pal.length)]
       });
 
-      if (archetype === 'dense') {
+      if (archetype === 'gradients_only') {
+        // Pure Atmospheric Gradients
+        let curY = 0;
+        let idx = 0;
+        while (curY < 100) {
+          const h = Math.min(100 - curY, Math.floor(Math.random() * 25) + 18);
+          const [c1, c2] = getRandomColorPair(pal);
+          const split = Math.random() > 0.45;
+
+          if (split) {
+            const splitX = Math.floor(Math.random() * 40) + 30;
+            newLayers.push({
+              id: `grad_${idx}_a`,
+              type: 'gradient',
+              x: 0, y: curY, w: splitX, h: h,
+              color1: c1, color2: c2,
+              angle: [0, 45, 90, 180, 270][Math.floor(Math.random() * 5)]
+            });
+            const [c3, c4] = getRandomColorPair(pal);
+            newLayers.push({
+              id: `grad_${idx}_b`,
+              type: 'gradient',
+              x: splitX, y: curY, w: 100 - splitX, h: h,
+              color1: c3, color2: c4,
+              angle: [90, 135, 180, 270][Math.floor(Math.random() * 4)]
+            });
+          } else {
+            newLayers.push({
+              id: `grad_${idx}`,
+              type: 'gradient',
+              x: 0, y: curY, w: 100, h: h,
+              color1: c1, color2: c2,
+              angle: [0, 90, 180, 270][Math.floor(Math.random() * 4)]
+            });
+          }
+          curY += h;
+          idx++;
+        }
+      }
+      else if (archetype === 'wedges') {
+        // Wedge Horizon / Saw Waves Focus
+        let curY = 0;
+        let idx = 0;
+        while (curY < 100) {
+          const h = Math.min(100 - curY, Math.floor(Math.random() * 20) + 12);
+          const [c1, c2] = getRandomColorPair(pal);
+          newLayers.push({
+            id: `wedge_${idx}`,
+            type: 'spikes',
+            x: 0, y: curY, w: 100, h: h,
+            color1: c1, color2: c2,
+            frequency: Math.floor(Math.random() * 5) + 2,
+            spikeDirection: ['right', 'left', 'up', 'down'][Math.floor(Math.random() * 4)]
+          });
+          curY += h;
+          idx++;
+        }
+      }
+      else if (archetype === 'interference') {
+        // High density pinstripe moiré & interference
+        const count = Math.floor(Math.random() * 3) + 5;
+        let curY = 0;
+        for (let i = 0; i < count; i++) {
+          const h = Math.min(100 - curY, Math.floor(100 / count) + Math.floor(Math.random() * 6) - 3);
+          const [c1, c2] = getRandomColorPair(pal);
+          const split = Math.random() > 0.4;
+
+          if (split) {
+            const splitX = Math.floor(Math.random() * 40) + 30;
+            newLayers.push({
+              id: `inter_${i}_a`,
+              type: 'stripes',
+              x: 0, y: curY, w: splitX, h: h,
+              color1: c1, color2: c2,
+              frequency: Math.floor(Math.random() * 4) + 3,
+              thickness: 1.5,
+              stripeAngle: 90
+            });
+            const [c3, c4] = getRandomColorPair(pal);
+            newLayers.push({
+              id: `inter_${i}_b`,
+              type: 'stripes',
+              x: splitX, y: curY, w: 100 - splitX, h: h,
+              color1: c3, color2: c4,
+              frequency: Math.floor(Math.random() * 4) + 3,
+              thickness: 1.5,
+              stripeAngle: 0
+            });
+          } else {
+            newLayers.push({
+              id: `inter_${i}`,
+              type: 'stripes',
+              x: 0, y: curY, w: 100, h: h,
+              color1: c1, color2: c2,
+              frequency: Math.floor(Math.random() * 5) + 2,
+              thickness: 1.5,
+              stripeAngle: i % 2 === 0 ? 0 : 90
+            });
+          }
+          curY += h;
+          if (curY >= 100) break;
+        }
+      }
+      else if (archetype === 'mondrian') {
+        // Bauhaus / Mondrian Minimal Divisions
+        const rows = [
+          { y: 0, h: 32 },
+          { y: 32, h: 42 },
+          { y: 74, h: 26 }
+        ];
+        rows.forEach((r, idx) => {
+          const splitX = Math.floor(Math.random() * 40) + 30;
+          const [c1, c2] = getRandomColorPair(pal);
+          newLayers.push({
+            id: `mond_${idx}_a`,
+            type: idx === 1 ? 'stripes' : 'solid',
+            x: 0, y: r.y, w: splitX, h: r.h,
+            color1: c1, color2: c2,
+            frequency: 5,
+            thickness: 1.8,
+            stripeAngle: 90
+          });
+          const [c3, c4] = getRandomColorPair(pal);
+          newLayers.push({
+            id: `mond_${idx}_b`,
+            type: idx === 0 ? 'gradient' : (idx === 2 ? 'spikes' : 'solid'),
+            x: splitX, y: r.y, w: 100 - splitX, h: r.h,
+            color1: c3, color2: c4,
+            frequency: 3,
+            spikeDirection: 'right',
+            angle: 90
+          });
+        });
+      }
+      else if (archetype === 'dense') {
         // High density vertical/horizontal op-art grating rhythm
         const rows = Math.floor(Math.random() * 3) + 4;
         const rowH = 100 / rows;
         for (let r = 0; r < rows; r++) {
-          const [c1, c2] = getRandomColorPair(pal);
           const splits = Math.floor(Math.random() * 3) + 1;
           const colW = 100 / splits;
           for (let s = 0; s < splits; s++) {
@@ -1047,7 +1183,6 @@
       render();
     }
 
-    // Shuffle colors while preserving existing layout
     function mutateColorsOnly() {
       const pal = PALETTES[document.getElementById('paletteSelect').value];
       layers.forEach(layer => {
@@ -1059,7 +1194,6 @@
       render();
     }
 
-    // Mutate geometry/angles while preserving current palette
     function mutateGeometryOnly() {
       layers.forEach(layer => {
         if (layer.type === 'stripes') {
@@ -1069,7 +1203,7 @@
           layer.frequency = Math.floor(Math.random() * 5) + 2;
           layer.spikeDirection = ['right', 'left', 'down', 'up'][Math.floor(Math.random() * 4)];
         } else if (layer.type === 'gradient') {
-          layer.angle = Math.floor(Math.random() * 4) * 90;
+          layer.angle = Math.floor(Math.random() * 8) * 45;
         }
       });
       renderLayerList();
@@ -1084,7 +1218,6 @@
       link.click();
     }
 
-    // Initialize
     initLayers();
     updateCanvasRatio();
     renderLayerList();
