@@ -6,8 +6,8 @@
   <title>rronblocks — Generative Op-Art Studio</title>
   <style>
     :root {
-      --bg-dark: #0a0c10;
-      --panel-bg: #14171f;
+      --bg-dark: #090b0e;
+      --panel-bg: #13161e;
       --card-bg: #1c202a;
       --card-border: #282d3b;
       --accent: #2563eb;
@@ -77,7 +77,7 @@
       background: var(--card-bg);
       color: var(--text);
       border: 1px solid var(--card-border);
-      padding: 8px 12px;
+      padding: 7px 12px;
       border-radius: var(--radius);
       font-size: 0.8rem;
       font-weight: 600;
@@ -110,10 +110,9 @@
       font-size: 0.75rem;
     }
 
-    /* Mobile segmented mode switch (Hidden on desktop) */
     .mobile-tab-switch {
       display: none;
-      background: #11141b;
+      background: #0e1017;
       border-radius: 6px;
       padding: 3px;
       border: 1px solid var(--card-border);
@@ -133,7 +132,6 @@
       color: #fff;
     }
 
-    /* Main Container */
     .app-container {
       display: flex;
       flex: 1;
@@ -141,14 +139,13 @@
       position: relative;
     }
 
-    /* Canvas Viewport */
     .viewport {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #07080b;
+      background: #060709;
       position: relative;
       overflow: auto;
       -webkit-overflow-scrolling: touch;
@@ -166,7 +163,7 @@
 
     .canvas-wrapper {
       position: relative;
-      box-shadow: 0 16px 36px rgba(0,0,0,0.85);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.9);
       border-radius: 4px;
       overflow: hidden;
       background: #000;
@@ -180,13 +177,12 @@
       height: 100%;
     }
 
-    /* Floating Viewport Quick Controls (Zoom / Full Preview) */
     .viewport-floating-bar {
       position: absolute;
       bottom: 16px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(20, 23, 31, 0.85);
+      background: rgba(19, 22, 30, 0.88);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--card-border);
@@ -206,13 +202,12 @@
     }
 
     .viewport-floating-bar input[type="range"] {
-      width: 90px;
+      width: 85px;
       accent-color: var(--accent);
     }
 
-    /* Controls Panel */
     .controls-panel {
-      width: 390px;
+      width: 400px;
       background: var(--panel-bg);
       border-left: 1px solid var(--card-border);
       display: flex;
@@ -229,7 +224,7 @@
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
     }
 
     .section {
@@ -294,7 +289,13 @@
     .row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     .row input[type="color"]::-webkit-color-swatch { border: 1px solid var(--card-border); border-radius: 4px; }
 
-    /* Layers List */
+    .btn-group-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
     .layer-card {
       background: #151821;
       border: 1px solid var(--card-border);
@@ -344,7 +345,6 @@
       gap: 8px;
     }
 
-    /* Mobile Responsive Optimizations */
     @media (max-width: 860px) {
       .mobile-tab-switch {
         display: flex;
@@ -354,7 +354,6 @@
         flex-direction: column;
       }
 
-      /* When on mobile in Canvas mode */
       body[data-mobile-view="canvas"] .viewport {
         display: flex;
         flex: 1;
@@ -367,9 +366,8 @@
         display: none;
       }
 
-      /* When on mobile in Editor mode */
       body[data-mobile-view="editor"] .viewport {
-        flex: 0 0 38vh;
+        flex: 0 0 36vh;
         border-bottom: 1px solid var(--card-border);
         padding: 8px;
       }
@@ -396,20 +394,18 @@
       <h1>rronblocks</h1>
     </div>
 
-    <!-- Mobile Viewport Switcher -->
     <div class="mobile-tab-switch">
       <button id="btnViewEditor" class="active" onclick="setMobileView('editor')">Edit</button>
       <button id="btnViewCanvas" onclick="setMobileView('canvas')">Canvas</button>
     </div>
 
     <div class="top-actions">
-      <button onclick="randomizeArtwork()">🎲</button>
+      <button onclick="randomizeArtwork('balanced')">🎲 Random</button>
       <button class="primary" onclick="exportPNG()">Export</button>
     </div>
   </header>
 
   <div class="app-container">
-    <!-- Interactive Viewport -->
     <div class="viewport" id="viewport">
       <div class="viewport-scroll-area">
         <div class="canvas-wrapper" id="canvasWrapper">
@@ -417,7 +413,6 @@
         </div>
       </div>
 
-      <!-- Quick Canvas Zoom / Scale Bar -->
       <div class="viewport-floating-bar">
         <label>Zoom</label>
         <input type="range" id="zoomRange" min="50" max="220" value="100" oninput="updateCanvasScale(this.value)" />
@@ -425,13 +420,33 @@
       </div>
     </div>
 
-    <!-- Customization Drawer -->
     <div class="controls-panel">
       <div class="panel-scroll">
 
-        <!-- General Layout & Texture -->
+        <!-- Randomization Generator Variations -->
         <div class="section">
-          <div class="section-title">Canvas Settings</div>
+          <div class="section-title">Generative Variations</div>
+          <div class="row">
+            <label>Archetype</label>
+            <select id="randomStyleSelect">
+              <option value="balanced">Balanced Construct (Classic)</option>
+              <option value="dense">Dense Op-Art Grids</option>
+              <option value="atmospheric">Atmospheric & Chevrons</option>
+              <option value="chaos">Radical Geometry</option>
+            </select>
+          </div>
+          <button class="primary" style="width: 100%; margin-top: 4px;" onclick="randomizeBySelectedArchetype()">
+            ✨ Generate New Variation
+          </button>
+          <div class="btn-group-grid">
+            <button onclick="mutateColorsOnly()">🎨 Shuffle Colors</button>
+            <button onclick="mutateGeometryOnly()">📐 Mutate Layout</button>
+          </div>
+        </div>
+
+        <!-- Canvas Setup & Color Theme -->
+        <div class="section">
+          <div class="section-title">Canvas & Texture</div>
           <div class="row">
             <label>Aspect Ratio</label>
             <select id="aspectRatio" onchange="updateCanvasRatio()">
@@ -442,16 +457,22 @@
             </select>
           </div>
           <div class="row">
-            <label>Palette Theme</label>
+            <label>Palette Presets</label>
             <select id="paletteSelect" onchange="applyPalette(this.value)">
               <option value="electric">Electric Blue & Rust</option>
+              <option value="klein">Klein Blue & Ochre</option>
               <option value="bauhaus">Bauhaus Classic</option>
-              <option value="monochrome">Monochrome & Sand</option>
-              <option value="cyber">Ultraviolet & Neon</option>
+              <option value="swiss">Swiss International</option>
+              <option value="terracotta">Terracotta & Sage</option>
+              <option value="monochrome">Brutalist Sand & Charcoal</option>
+              <option value="cyber">Tokyo Cyberpunk</option>
+              <option value="acid">Acid Construct</option>
+              <option value="ultramarine">Pure Ultramarine</option>
+              <option value="sepia">Warm Sepia Screenprint</option>
             </select>
           </div>
           <div class="row">
-            <label>Grain / Riso Noise</label>
+            <label>Riso / Film Grain</label>
             <input type="range" id="grainAmount" min="0" max="50" value="26" oninput="render()" />
           </div>
         </div>
@@ -470,11 +491,18 @@
   </div>
 
   <script>
+    // Expanded curated palettes
     const PALETTES = {
       electric: ['#0077ff', '#ff4d00', '#0a0d14', '#e6e4df', '#101e36', '#6f7480'],
+      klein: ['#002fa7', '#e8a938', '#0b0c10', '#f4ede2', '#1a3b8b', '#7c8b9e'],
       bauhaus: ['#d62828', '#003049', '#fdf0d5', '#f77f00', '#111111', '#eae2b7'],
+      swiss: ['#e63946', '#1d3557', '#f1faee', '#457b9d', '#111827', '#a8dadc'],
+      terracotta: ['#c85a32', '#3d5a45', '#f3eae1', '#1f2421', '#8c9a8e', '#d4a373'],
       monochrome: ['#121212', '#f4f1ea', '#888888', '#2b2b2b', '#d3cfc7', '#444444'],
-      cyber: ['#ff0055', '#00f0ff', '#2d006b', '#0d0221', '#fffa65', '#ffffff']
+      cyber: ['#ff0055', '#00f0ff', '#2d006b', '#0d0221', '#fffa65', '#ffffff'],
+      acid: ['#b4f000', '#5e17eb', '#0d0c1d', '#e0e2db', '#23004b', '#9b5de5'],
+      ultramarine: ['#0011ff', '#000000', '#ffffff', '#264bff', '#8ca1ff', '#050a24'],
+      sepia: ['#3e2723', '#d7ccc8', '#ff7043', '#271b16', '#a1887f', '#fff3e0']
     };
 
     let layers = [];
@@ -491,101 +519,20 @@
 
     function initLayers() {
       layers = [
-        {
-          id: 'bg',
-          type: 'solid',
-          x: 0, y: 0, w: 100, h: 100,
-          color1: '#0a0d14'
-        },
-        {
-          id: 'grad-top',
-          type: 'gradient',
-          x: 0, y: 0, w: 100, h: 14,
-          color1: '#0088ff',
-          color2: '#05070a',
-          angle: 90
-        },
-        {
-          id: 'pinstripe-mid-left',
-          type: 'stripes',
-          x: 0, y: 14, w: 38, h: 44,
-          color1: '#757c88',
-          color2: '#ff4d00',
-          frequency: 5,
-          thickness: 1.5,
-          stripeAngle: 90
-        },
-        {
-          id: 'solid-blue-bar',
-          type: 'gradient',
-          x: 16, y: 14, w: 22, h: 44,
-          color1: '#0055ff',
-          color2: '#0038aa',
-          angle: 0
-        },
-        {
-          id: 'pinstripe-top-right',
-          type: 'stripes',
-          x: 38, y: 14, w: 62, h: 21,
-          color1: '#ff4400',
-          color2: '#0033aa',
-          frequency: 5,
-          thickness: 1.8,
-          stripeAngle: 90
-        },
-        {
-          id: 'pinstripe-mid-right',
-          type: 'stripes',
-          x: 38, y: 35, w: 62, h: 23,
-          color1: '#7e838f',
-          color2: '#ff5500',
-          frequency: 4,
-          thickness: 1.5,
-          stripeAngle: 0
-        },
-        {
-          id: 'spikes-band-mid',
-          type: 'spikes',
-          x: 0, y: 58, w: 100, h: 14,
-          color1: '#0a0c10',
-          color2: '#dedad1',
-          frequency: 3,
-          spikeDirection: 'right'
-        },
-        {
-          id: 'bottom-spikes',
-          type: 'spikes',
-          x: 0, y: 72, w: 25, h: 28,
-          color1: '#e1ded7',
-          color2: '#00a2ff',
-          frequency: 4,
-          spikeDirection: 'left'
-        },
-        {
-          id: 'bottom-dense-blue',
-          type: 'stripes',
-          x: 25, y: 72, w: 55, h: 28,
-          color1: '#001a66',
-          color2: '#0066ff',
-          frequency: 4,
-          thickness: 1.6,
-          stripeAngle: 0
-        },
-        {
-          id: 'bottom-fine-right',
-          type: 'stripes',
-          x: 80, y: 72, w: 20, h: 28,
-          color1: '#e0f2fe',
-          color2: '#0284c7',
-          frequency: 4,
-          thickness: 1.5,
-          stripeAngle: 90
-        }
+        { id: 'bg', type: 'solid', x: 0, y: 0, w: 100, h: 100, color1: '#0a0d14' },
+        { id: 'grad-top', type: 'gradient', x: 0, y: 0, w: 100, h: 14, color1: '#0088ff', color2: '#05070a', angle: 90 },
+        { id: 'pinstripe-mid-left', type: 'stripes', x: 0, y: 14, w: 38, h: 44, color1: '#757c88', color2: '#ff4d00', frequency: 5, thickness: 1.5, stripeAngle: 90 },
+        { id: 'solid-blue-bar', type: 'gradient', x: 16, y: 14, w: 22, h: 44, color1: '#0055ff', color2: '#0038aa', angle: 0 },
+        { id: 'pinstripe-top-right', type: 'stripes', x: 38, y: 14, w: 62, h: 21, color1: '#ff4400', color2: '#0033aa', frequency: 5, thickness: 1.8, stripeAngle: 90 },
+        { id: 'pinstripe-mid-right', type: 'stripes', x: 38, y: 35, w: 62, h: 23, color1: '#7e838f', color2: '#ff5500', frequency: 4, thickness: 1.5, stripeAngle: 0 },
+        { id: 'spikes-band-mid', type: 'spikes', x: 0, y: 58, w: 100, h: 14, color1: '#0a0c10', color2: '#dedad1', frequency: 3, spikeDirection: 'right' },
+        { id: 'bottom-spikes', type: 'spikes', x: 0, y: 72, w: 25, h: 28, color1: '#e1ded7', color2: '#00a2ff', frequency: 4, spikeDirection: 'left' },
+        { id: 'bottom-dense-blue', type: 'stripes', x: 25, y: 72, w: 55, h: 28, color1: '#001a66', color2: '#0066ff', frequency: 4, thickness: 1.6, stripeAngle: 0 },
+        { id: 'bottom-fine-right', type: 'stripes', x: 80, y: 72, w: 20, h: 28, color1: '#e0f2fe', color2: '#0284c7', frequency: 4, thickness: 1.5, stripeAngle: 90 }
       ];
       activeLayerId = layers[1].id;
     }
 
-    // --- Mobile Mode Switching ---
     function setMobileView(view) {
       document.body.setAttribute('data-mobile-view', view);
       document.getElementById('btnViewEditor').classList.toggle('active', view === 'editor');
@@ -593,7 +540,6 @@
       setTimeout(resizeViewportCanvas, 50);
     }
 
-    // --- Zoom and Viewport Resizing ---
     function updateCanvasScale(percent) {
       currentZoomMultiplier = percent / 100;
       resizeViewportCanvas();
@@ -619,7 +565,6 @@
         w = h * aspect;
       }
 
-      // Apply zoom factor
       w = w * currentZoomMultiplier;
       h = h * currentZoomMultiplier;
 
@@ -642,7 +587,6 @@
 
     window.addEventListener('resize', resizeViewportCanvas);
 
-    // --- Render Loop ---
     function render() {
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -753,7 +697,6 @@
         ctx.restore();
       });
 
-      // Procedural Grain Pass
       const grainIntensity = parseInt(document.getElementById('grainAmount').value, 10);
       if (grainIntensity > 0) {
         applyProceduralGrain(grainIntensity);
@@ -779,7 +722,6 @@
       ctx.putImageData(imgData, 0, 0);
     }
 
-    // --- Layer UI Controls ---
     function renderLayerList() {
       const container = document.getElementById('layersList');
       container.innerHTML = '';
@@ -940,72 +882,196 @@
       render();
     }
 
-    function randomizeArtwork() {
-      const paletteKeys = Object.keys(PALETTES);
-      const chosenPalette = PALETTES[paletteKeys[Math.floor(Math.random() * paletteKeys.length)]];
-      document.getElementById('paletteSelect').value = paletteKeys.find(k => PALETTES[k] === chosenPalette);
+    // --- Enhanced Randomization Suite ---
+    function randomizeBySelectedArchetype() {
+      const style = document.getElementById('randomStyleSelect').value;
+      randomizeArtwork(style);
+    }
 
-      const count = Math.floor(Math.random() * 4) + 6;
+    function getRandomColorPair(pal) {
+      const c1 = pal[Math.floor(Math.random() * pal.length)];
+      let c2 = pal[Math.floor(Math.random() * pal.length)];
+      let tries = 0;
+      while (c2 === c1 && tries < 10) {
+        c2 = pal[Math.floor(Math.random() * pal.length)];
+        tries++;
+      }
+      return [c1, c2];
+    }
+
+    function randomizeArtwork(archetype = 'balanced') {
+      const paletteKeys = Object.keys(PALETTES);
+      const chosenKey = paletteKeys[Math.floor(Math.random() * paletteKeys.length)];
+      document.getElementById('paletteSelect').value = chosenKey;
+      const pal = PALETTES[chosenKey];
+
       const newLayers = [];
 
+      // Background
       newLayers.push({
-        id: 'layer_0',
+        id: 'bg_' + Date.now(),
         type: 'solid',
         x: 0, y: 0, w: 100, h: 100,
-        color1: chosenPalette[chosenPalette.length - 1]
+        color1: pal[Math.floor(Math.random() * pal.length)]
       });
 
-      let curY = 0;
-      for (let i = 1; i < count; i++) {
-        const h = Math.floor(Math.random() * 25) + 10;
-        const typeChoice = ['stripes', 'spikes', 'gradient', 'stripes'][Math.floor(Math.random() * 4)];
-        const c1 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
-        let c2 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
-        while (c2 === c1) c2 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
+      if (archetype === 'dense') {
+        // High density vertical/horizontal op-art grating rhythm
+        const rows = Math.floor(Math.random() * 3) + 4;
+        const rowH = 100 / rows;
+        for (let r = 0; r < rows; r++) {
+          const [c1, c2] = getRandomColorPair(pal);
+          const splits = Math.floor(Math.random() * 3) + 1;
+          const colW = 100 / splits;
+          for (let s = 0; s < splits; s++) {
+            const [sc1, sc2] = getRandomColorPair(pal);
+            newLayers.push({
+              id: `grid_${r}_${s}`,
+              type: Math.random() > 0.15 ? 'stripes' : 'spikes',
+              x: Math.round(s * colW),
+              y: Math.round(r * rowH),
+              w: Math.round(colW),
+              h: Math.round(rowH),
+              color1: sc1,
+              color2: sc2,
+              frequency: Math.floor(Math.random() * 4) + 3,
+              thickness: 1.5,
+              stripeAngle: (r + s) % 2 === 0 ? 0 : 90,
+              spikeDirection: ['right', 'left', 'up', 'down'][Math.floor(Math.random() * 4)]
+            });
+          }
+        }
+      } 
+      else if (archetype === 'atmospheric') {
+        // Soft gradient atmosphere with sharp spike chevrons
+        let curY = 0;
+        while (curY < 100) {
+          const h = Math.min(100 - curY, Math.floor(Math.random() * 25) + 15);
+          const [c1, c2] = getRandomColorPair(pal);
+          const isSpike = Math.random() > 0.6;
 
-        const splitRow = Math.random() > 0.4;
-        if (splitRow) {
-          const splitX = Math.floor(Math.random() * 50) + 25;
           newLayers.push({
-            id: `layer_${i}_a`,
-            type: typeChoice,
-            x: 0, y: curY, w: splitX, h: h,
-            color1: c1, color2: c2,
-            frequency: Math.floor(Math.random() * 6) + 3,
-            thickness: 1.5,
-            stripeAngle: Math.random() > 0.5 ? 90 : 0,
-            spikeDirection: 'right'
-          });
-          newLayers.push({
-            id: `layer_${i}_b`,
-            type: Math.random() > 0.5 ? 'stripes' : 'gradient',
-            x: splitX, y: curY, w: 100 - splitX, h: h,
-            color1: c2, color2: chosenPalette[0],
-            frequency: Math.floor(Math.random() * 6) + 3,
-            thickness: 1.5,
-            stripeAngle: Math.random() > 0.5 ? 0 : 90,
-            angle: 90
-          });
-        } else {
-          newLayers.push({
-            id: `layer_${i}`,
-            type: typeChoice,
-            x: 0, y: curY, w: 100, h: h,
-            color1: c1, color2: c2,
-            frequency: Math.floor(Math.random() * 5) + 2,
-            thickness: 1.5,
-            stripeAngle: Math.random() > 0.5 ? 90 : 0,
+            id: `atm_${curY}`,
+            type: isSpike ? 'spikes' : 'gradient',
+            x: 0,
+            y: curY,
+            w: 100,
+            h: h,
+            color1: c1,
+            color2: c2,
+            frequency: Math.floor(Math.random() * 4) + 2,
             spikeDirection: Math.random() > 0.5 ? 'right' : 'left',
             angle: Math.floor(Math.random() * 4) * 90
           });
+          curY += h;
         }
+      }
+      else if (archetype === 'chaos') {
+        // Radical geometric free-partitioning
+        const count = Math.floor(Math.random() * 5) + 7;
+        for (let i = 0; i < count; i++) {
+          const [c1, c2] = getRandomColorPair(pal);
+          const types = ['stripes', 'spikes', 'gradient', 'solid'];
+          newLayers.push({
+            id: `chaos_${i}`,
+            type: types[Math.floor(Math.random() * types.length)],
+            x: Math.floor(Math.random() * 70),
+            y: Math.floor(Math.random() * 75),
+            w: Math.floor(Math.random() * 50) + 25,
+            h: Math.floor(Math.random() * 40) + 15,
+            color1: c1,
+            color2: c2,
+            frequency: Math.floor(Math.random() * 6) + 3,
+            thickness: 1.6,
+            stripeAngle: [0, 90, 45][Math.floor(Math.random() * 3)],
+            spikeDirection: ['right', 'left', 'down', 'up'][Math.floor(Math.random() * 4)],
+            angle: Math.floor(Math.random() * 360)
+          });
+        }
+      }
+      else {
+        // Balanced classic constructivist
+        let curY = 0;
+        let index = 0;
+        while (curY < 100) {
+          const h = Math.min(100 - curY, Math.floor(Math.random() * 22) + 12);
+          const [c1, c2] = getRandomColorPair(pal);
+          const split = Math.random() > 0.45;
 
-        curY += h;
-        if (curY >= 100) break;
+          if (split) {
+            const splitX = Math.floor(Math.random() * 40) + 30;
+            newLayers.push({
+              id: `bal_${index}_a`,
+              type: Math.random() > 0.3 ? 'stripes' : 'spikes',
+              x: 0, y: curY, w: splitX, h: h,
+              color1: c1, color2: c2,
+              frequency: Math.floor(Math.random() * 5) + 3,
+              thickness: 1.5,
+              stripeAngle: Math.random() > 0.5 ? 90 : 0,
+              spikeDirection: 'right'
+            });
+
+            const [c3, c4] = getRandomColorPair(pal);
+            newLayers.push({
+              id: `bal_${index}_b`,
+              type: Math.random() > 0.4 ? 'gradient' : 'stripes',
+              x: splitX, y: curY, w: 100 - splitX, h: h,
+              color1: c3, color2: c4,
+              frequency: Math.floor(Math.random() * 5) + 3,
+              thickness: 1.5,
+              stripeAngle: Math.random() > 0.5 ? 0 : 90,
+              angle: 90
+            });
+          } else {
+            const types = ['stripes', 'spikes', 'gradient'];
+            newLayers.push({
+              id: `bal_${index}`,
+              type: types[Math.floor(Math.random() * types.length)],
+              x: 0, y: curY, w: 100, h: h,
+              color1: c1, color2: c2,
+              frequency: Math.floor(Math.random() * 4) + 2,
+              thickness: 1.5,
+              stripeAngle: Math.random() > 0.5 ? 90 : 0,
+              spikeDirection: Math.random() > 0.5 ? 'right' : 'left',
+              angle: 90
+            });
+          }
+          curY += h;
+          index++;
+        }
       }
 
       layers = newLayers;
-      activeLayerId = layers[0].id;
+      activeLayerId = layers[layers.length > 1 ? 1 : 0].id;
+      renderLayerList();
+      render();
+    }
+
+    // Shuffle colors while preserving existing layout
+    function mutateColorsOnly() {
+      const pal = PALETTES[document.getElementById('paletteSelect').value];
+      layers.forEach(layer => {
+        const [c1, c2] = getRandomColorPair(pal);
+        layer.color1 = c1;
+        if (layer.type !== 'solid') layer.color2 = c2;
+      });
+      renderLayerList();
+      render();
+    }
+
+    // Mutate geometry/angles while preserving current palette
+    function mutateGeometryOnly() {
+      layers.forEach(layer => {
+        if (layer.type === 'stripes') {
+          layer.stripeAngle = layer.stripeAngle === 0 ? 90 : (layer.stripeAngle === 90 ? 45 : 0);
+          layer.frequency = Math.floor(Math.random() * 6) + 3;
+        } else if (layer.type === 'spikes') {
+          layer.frequency = Math.floor(Math.random() * 5) + 2;
+          layer.spikeDirection = ['right', 'left', 'down', 'up'][Math.floor(Math.random() * 4)];
+        } else if (layer.type === 'gradient') {
+          layer.angle = Math.floor(Math.random() * 4) * 90;
+        }
+      });
       renderLayerList();
       render();
     }
