@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Constructivist & Op-Art Studio</title>
+  <title>rronblocks — Generative Op-Art Studio</title>
   <style>
     :root {
-      --bg-dark: #0f1115;
-      --panel-bg: #181a20;
-      --card-bg: #21242c;
-      --card-border: #2e323e;
+      --bg-dark: #0a0c10;
+      --panel-bg: #14171f;
+      --card-bg: #1c202a;
+      --card-border: #282d3b;
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
       --text: #f3f4f6;
@@ -36,34 +36,50 @@
 
     header {
       background: var(--panel-bg);
-      padding: 10px 16px;
+      padding: 8px 16px;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      width: 12px;
+      height: 12px;
+      background: #0066ff;
+      border-radius: 2px;
+      display: inline-block;
     }
 
     header h1 {
       font-size: 1.05rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+      font-weight: 800;
       color: #fff;
     }
 
     .top-actions {
       display: flex;
       gap: 8px;
+      align-items: center;
     }
 
     button {
       background: var(--card-bg);
       color: var(--text);
       border: 1px solid var(--card-border);
-      padding: 8px 14px;
+      padding: 8px 12px;
       border-radius: var(--radius);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
@@ -71,10 +87,11 @@
       justify-content: center;
       gap: 6px;
       transition: all 0.15s ease;
+      touch-action: manipulation;
     }
 
     button:hover {
-      background: #2b303c;
+      background: #252a37;
       border-color: #3b4252;
     }
 
@@ -93,7 +110,30 @@
       font-size: 0.75rem;
     }
 
-    /* Main Application Layout */
+    /* Mobile segmented mode switch (Hidden on desktop) */
+    .mobile-tab-switch {
+      display: none;
+      background: #11141b;
+      border-radius: 6px;
+      padding: 3px;
+      border: 1px solid var(--card-border);
+    }
+
+    .mobile-tab-switch button {
+      border: none;
+      background: transparent;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .mobile-tab-switch button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* Main Container */
     .app-container {
       display: flex;
       flex: 1;
@@ -101,25 +141,37 @@
       position: relative;
     }
 
-    /* Canvas Stage */
+    /* Canvas Viewport */
     .viewport {
       flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #090a0d;
-      padding: 20px;
-      overflow: hidden;
+      background: #07080b;
       position: relative;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px;
+    }
+
+    .viewport-scroll-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 100%;
+      min-height: 100%;
+      padding: 20px;
     }
 
     .canvas-wrapper {
       position: relative;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.85);
       border-radius: 4px;
       overflow: hidden;
       background: #000;
-      display: flex;
+      flex-shrink: 0;
+      transition: width 0.15s ease, height 0.15s ease;
     }
 
     canvas {
@@ -128,20 +180,52 @@
       height: 100%;
     }
 
-    /* Sidebar / Drawer Panel */
+    /* Floating Viewport Quick Controls (Zoom / Full Preview) */
+    .viewport-floating-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 23, 31, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 30px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 15;
+    }
+
+    .viewport-floating-bar label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .viewport-floating-bar input[type="range"] {
+      width: 90px;
+      accent-color: var(--accent);
+    }
+
+    /* Controls Panel */
     .controls-panel {
-      width: 380px;
+      width: 390px;
       background: var(--panel-bg);
       border-left: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
       z-index: 10;
+      height: 100%;
     }
 
     .panel-scroll {
       flex: 1;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -156,10 +240,10 @@
     }
 
     .section-title {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--text-muted);
       margin-bottom: 12px;
       display: flex;
@@ -189,11 +273,11 @@
       accent-color: var(--accent);
     }
 
-    .row select, .row input[type="text"], .row input[type="number"] {
-      background: #14161b;
+    .row select, .row input[type="number"] {
+      background: #11141b;
       border: 1px solid var(--card-border);
       color: #fff;
-      padding: 6px 8px;
+      padding: 7px 8px;
       border-radius: 4px;
       font-size: 0.8rem;
     }
@@ -201,8 +285,8 @@
     .row input[type="color"] {
       -webkit-appearance: none;
       border: none;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 4px;
       cursor: pointer;
       background: none;
@@ -212,7 +296,7 @@
 
     /* Layers List */
     .layer-card {
-      background: #191b22;
+      background: #151821;
       border: 1px solid var(--card-border);
       border-radius: 6px;
       padding: 10px;
@@ -222,6 +306,7 @@
 
     .layer-card.active {
       border-color: var(--accent);
+      background: #181c27;
     }
 
     .layer-header {
@@ -259,61 +344,105 @@
       gap: 8px;
     }
 
-    /* Mobile Responsive styles */
+    /* Mobile Responsive Optimizations */
     @media (max-width: 860px) {
+      .mobile-tab-switch {
+        display: flex;
+      }
+
       .app-container {
         flex-direction: column;
       }
 
-      .viewport {
+      /* When on mobile in Canvas mode */
+      body[data-mobile-view="canvas"] .viewport {
+        display: flex;
         flex: 1;
-        padding: 10px;
-        max-height: 48vh;
+        height: 100%;
+        max-height: none;
+        padding-bottom: 60px;
       }
 
-      .controls-panel {
+      body[data-mobile-view="canvas"] .controls-panel {
+        display: none;
+      }
+
+      /* When on mobile in Editor mode */
+      body[data-mobile-view="editor"] .viewport {
+        flex: 0 0 38vh;
+        border-bottom: 1px solid var(--card-border);
+        padding: 8px;
+      }
+
+      body[data-mobile-view="editor"] .controls-panel {
+        display: flex;
+        flex: 1;
         width: 100%;
-        flex: 1.2;
         border-left: none;
-        border-top: 1px solid var(--card-border);
+      }
+
+      .viewport-floating-bar {
+        bottom: 10px;
+        padding: 4px 10px;
       }
     }
   </style>
 </head>
-<body>
+<body data-mobile-view="editor">
 
   <header>
-    <h1>Op-Art Construct</h1>
+    <div class="brand">
+      <span class="brand-badge"></span>
+      <h1>rronblocks</h1>
+    </div>
+
+    <!-- Mobile Viewport Switcher -->
+    <div class="mobile-tab-switch">
+      <button id="btnViewEditor" class="active" onclick="setMobileView('editor')">Edit</button>
+      <button id="btnViewCanvas" onclick="setMobileView('canvas')">Canvas</button>
+    </div>
+
     <div class="top-actions">
-      <button onclick="randomizeArtwork()">🎲 Randomize</button>
-      <button class="primary" onclick="exportPNG()">⬇ Export PNG</button>
+      <button onclick="randomizeArtwork()">🎲</button>
+      <button class="primary" onclick="exportPNG()">Export</button>
     </div>
   </header>
 
   <div class="app-container">
+    <!-- Interactive Viewport -->
     <div class="viewport" id="viewport">
-      <div class="canvas-wrapper" id="canvasWrapper">
-        <canvas id="artCanvas"></canvas>
+      <div class="viewport-scroll-area">
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="artCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Quick Canvas Zoom / Scale Bar -->
+      <div class="viewport-floating-bar">
+        <label>Zoom</label>
+        <input type="range" id="zoomRange" min="50" max="220" value="100" oninput="updateCanvasScale(this.value)" />
+        <button class="small" onclick="fitCanvasToScreen()">Fit</button>
       </div>
     </div>
 
+    <!-- Customization Drawer -->
     <div class="controls-panel">
       <div class="panel-scroll">
 
-        <!-- Canvas & Finish Setup -->
+        <!-- General Layout & Texture -->
         <div class="section">
           <div class="section-title">Canvas Settings</div>
           <div class="row">
             <label>Aspect Ratio</label>
             <select id="aspectRatio" onchange="updateCanvasRatio()">
-              <option value="9:16">9:16 (Phone)</option>
+              <option value="9:16">9:16 (Phone Screen)</option>
               <option value="1:1">1:1 (Square)</option>
-              <option value="4:5">4:5 (Print / IG)</option>
+              <option value="4:5">4:5 (Print / Portrait)</option>
               <option value="16:9">16:9 (Landscape)</option>
             </select>
           </div>
           <div class="row">
-            <label>Color Preset</label>
+            <label>Palette Theme</label>
             <select id="paletteSelect" onchange="applyPalette(this.value)">
               <option value="electric">Electric Blue & Rust</option>
               <option value="bauhaus">Bauhaus Classic</option>
@@ -322,15 +451,15 @@
             </select>
           </div>
           <div class="row">
-            <label>Noise & Grain</label>
-            <input type="range" id="grainAmount" min="0" max="60" value="28" oninput="render()" />
+            <label>Grain / Riso Noise</label>
+            <input type="range" id="grainAmount" min="0" max="50" value="26" oninput="render()" />
           </div>
         </div>
 
-        <!-- Layers Section -->
+        <!-- Layer Blocks List -->
         <div class="section">
           <div class="section-title">
-            <span>Blocks / Layers</span>
+            <span>Blocks / Elements</span>
             <button class="small primary" onclick="addNewLayer()">+ Add Block</button>
           </div>
           <div id="layersList"></div>
@@ -341,7 +470,6 @@
   </div>
 
   <script>
-    // --- State & Initial Composition Setup ---
     const PALETTES = {
       electric: ['#0077ff', '#ff4d00', '#0a0d14', '#e6e4df', '#101e36', '#6f7480'],
       bauhaus: ['#d62828', '#003049', '#fdf0d5', '#f77f00', '#111111', '#eae2b7'],
@@ -351,18 +479,17 @@
 
     let layers = [];
     let activeLayerId = null;
+    let currentZoomMultiplier = 1.0;
 
     const canvas = document.getElementById('artCanvas');
     const ctx = canvas.getContext('2d');
     const viewport = document.getElementById('viewport');
     const wrapper = document.getElementById('canvasWrapper');
 
-    // Base master export dimensions
     let baseWidth = 1080;
     let baseHeight = 1920;
 
     function initLayers() {
-      // Create initial constructivist composition matching sample
       layers = [
         {
           id: 'bg',
@@ -458,7 +585,48 @@
       activeLayerId = layers[1].id;
     }
 
-    // --- Dynamic Resizing & Aspect Ratio ---
+    // --- Mobile Mode Switching ---
+    function setMobileView(view) {
+      document.body.setAttribute('data-mobile-view', view);
+      document.getElementById('btnViewEditor').classList.toggle('active', view === 'editor');
+      document.getElementById('btnViewCanvas').classList.toggle('active', view === 'canvas');
+      setTimeout(resizeViewportCanvas, 50);
+    }
+
+    // --- Zoom and Viewport Resizing ---
+    function updateCanvasScale(percent) {
+      currentZoomMultiplier = percent / 100;
+      resizeViewportCanvas();
+    }
+
+    function fitCanvasToScreen() {
+      document.getElementById('zoomRange').value = 100;
+      currentZoomMultiplier = 1.0;
+      resizeViewportCanvas();
+    }
+
+    function resizeViewportCanvas() {
+      const pad = 24;
+      const availW = Math.max(100, viewport.clientWidth - pad);
+      const availH = Math.max(100, viewport.clientHeight - pad);
+      const aspect = baseWidth / baseHeight;
+
+      let w = availW;
+      let h = w / aspect;
+
+      if (h > availH) {
+        h = availH;
+        w = h * aspect;
+      }
+
+      // Apply zoom factor
+      w = w * currentZoomMultiplier;
+      h = h * currentZoomMultiplier;
+
+      wrapper.style.width = `${Math.floor(w)}px`;
+      wrapper.style.height = `${Math.floor(h)}px`;
+    }
+
     function updateCanvasRatio() {
       const val = document.getElementById('aspectRatio').value;
       if (val === '9:16') { baseWidth = 1080; baseHeight = 1920; }
@@ -472,32 +640,13 @@
       render();
     }
 
-    function resizeViewportCanvas() {
-      const pad = 30;
-      const availW = viewport.clientWidth - pad;
-      const availH = viewport.clientHeight - pad;
-      const aspect = baseWidth / baseHeight;
-
-      let w = availW;
-      let h = w / aspect;
-
-      if (h > availH) {
-        h = availH;
-        w = h * aspect;
-      }
-
-      wrapper.style.width = `${Math.floor(w)}px`;
-      wrapper.style.height = `${Math.floor(h)}px`;
-    }
-
     window.addEventListener('resize', resizeViewportCanvas);
 
-    // --- Rendering Functions ---
+    // --- Render Loop ---
     function render() {
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Render each block layer
       layers.forEach(layer => {
         ctx.save();
         const rx = (layer.x / 100) * canvas.width;
@@ -505,7 +654,6 @@
         const rw = (layer.w / 100) * canvas.width;
         const rh = (layer.h / 100) * canvas.height;
 
-        // Clip block to its rectangular boundary
         ctx.beginPath();
         ctx.rect(rx, ry, rw, rh);
         ctx.clip();
@@ -531,11 +679,9 @@
           ctx.fillRect(rx, ry, rw, rh);
         }
         else if (layer.type === 'stripes') {
-          // Fill background color
           ctx.fillStyle = layer.color2;
           ctx.fillRect(rx, ry, rw, rh);
 
-          // Draw high-frequency pinstripes
           ctx.strokeStyle = layer.color1;
           ctx.lineWidth = layer.thickness || 1.5;
 
@@ -607,7 +753,7 @@
         ctx.restore();
       });
 
-      // Procedural Grain / Riso Dither Pass
+      // Procedural Grain Pass
       const grainIntensity = parseInt(document.getElementById('grainAmount').value, 10);
       if (grainIntensity > 0) {
         applyProceduralGrain(grainIntensity);
@@ -616,7 +762,6 @@
       ctx.restore();
     }
 
-    // High performance pixel grain generator
     function applyProceduralGrain(amount) {
       const w = canvas.width;
       const h = canvas.height;
@@ -634,7 +779,7 @@
       ctx.putImageData(imgData, 0, 0);
     }
 
-    // --- Controls & Layer List Management ---
+    // --- Layer UI Controls ---
     function renderLayerList() {
       const container = document.getElementById('layersList');
       container.innerHTML = '';
@@ -659,11 +804,11 @@
           ${isActive ? `
             <div class="layer-details">
               <div class="row">
-                <label>Type</label>
+                <label>Style</label>
                 <select onchange="updateActiveLayer('type', this.value)">
                   <option value="solid" ${layer.type === 'solid' ? 'selected' : ''}>Solid Fill</option>
                   <option value="gradient" ${layer.type === 'gradient' ? 'selected' : ''}>Gradient Field</option>
-                  <option value="stripes" ${layer.type === 'stripes' ? 'selected' : ''}>Fine Hatching/Stripes</option>
+                  <option value="stripes" ${layer.type === 'stripes' ? 'selected' : ''}>Pinstripes</option>
                   <option value="spikes" ${layer.type === 'spikes' ? 'selected' : ''}>Spikes / Teeth</option>
                 </select>
               </div>
@@ -692,7 +837,7 @@
 
               ${layer.type === 'stripes' ? `
                 <div class="row">
-                  <label>Spacing</label>
+                  <label>Density</label>
                   <input type="range" min="2" max="25" step="1" value="${layer.frequency || 5}" oninput="updateActiveLayer('frequency', +this.value)" />
                 </div>
                 <div class="row">
@@ -707,7 +852,7 @@
 
               ${layer.type === 'spikes' ? `
                 <div class="row">
-                  <label>Spike Count</label>
+                  <label>Count</label>
                   <input type="range" min="1" max="12" step="1" value="${layer.frequency || 3}" oninput="updateActiveLayer('frequency', +this.value)" />
                 </div>
                 <div class="row">
@@ -803,7 +948,6 @@
       const count = Math.floor(Math.random() * 4) + 6;
       const newLayers = [];
 
-      // Base background
       newLayers.push({
         id: 'layer_0',
         type: 'solid',
@@ -811,7 +955,6 @@
         color1: chosenPalette[chosenPalette.length - 1]
       });
 
-      // Procedural constructivist split layout
       let curY = 0;
       for (let i = 1; i < count; i++) {
         const h = Math.floor(Math.random() * 25) + 10;
@@ -820,7 +963,6 @@
         let c2 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
         while (c2 === c1) c2 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
 
-        // Split some rows horizontally into columns
         const splitRow = Math.random() > 0.4;
         if (splitRow) {
           const splitX = Math.floor(Math.random() * 50) + 25;
@@ -868,17 +1010,15 @@
       render();
     }
 
-    // --- Export High-Res PNG ---
     function exportPNG() {
-      // Temporarily render at full scale
       render();
       const link = document.createElement('a');
-      link.download = `constructivist-art-${Date.now()}.png`;
+      link.download = `rronblocks-${Date.now()}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     }
 
-    // --- Boot ---
+    // Initialize
     initLayers();
     updateCanvasRatio();
     renderLayerList();
