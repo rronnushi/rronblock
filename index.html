@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Constructivist & Op-Art Studio</title>
+  <style>
+    :root {
+      --bg-dark: #0f1115;
+      --panel-bg: #181a20;
+      --card-bg: #21242c;
+      --card-border: #2e323e;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--panel-bg);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.05rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      background: #2b303c;
+      border-color: #3b4252;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    button.small {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+    }
+
+    /* Main Application Layout */
+    .app-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Canvas Stage */
+    .viewport {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #090a0d;
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #000;
+      display: flex;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Sidebar / Drawer Panel */
+    .controls-panel {
+      width: 380px;
+      background: var(--panel-bg);
+      border-left: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .panel-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .row:last-child {
+      margin-bottom: 0;
+    }
+
+    .row label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      flex: 1;
+    }
+
+    .row input[type="range"] {
+      flex: 1.5;
+      accent-color: var(--accent);
+    }
+
+    .row select, .row input[type="text"], .row input[type="number"] {
+      background: #14161b;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 6px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .row input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      background: none;
+    }
+    .row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+    .row input[type="color"]::-webkit-color-swatch { border: 1px solid var(--card-border); border-radius: 4px; }
+
+    /* Layers List */
+    .layer-card {
+      background: #191b22;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+      transition: border-color 0.15s ease;
+    }
+
+    .layer-card.active {
+      border-color: var(--accent);
+    }
+
+    .layer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .layer-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .layer-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .layer-details {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* Mobile Responsive styles */
+    @media (max-width: 860px) {
+      .app-container {
+        flex-direction: column;
+      }
+
+      .viewport {
+        flex: 1;
+        padding: 10px;
+        max-height: 48vh;
+      }
+
+      .controls-panel {
+        width: 100%;
+        flex: 1.2;
+        border-left: none;
+        border-top: 1px solid var(--card-border);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Op-Art Construct</h1>
+    <div class="top-actions">
+      <button onclick="randomizeArtwork()">🎲 Randomize</button>
+      <button class="primary" onclick="exportPNG()">⬇ Export PNG</button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="viewport" id="viewport">
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <canvas id="artCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="controls-panel">
+      <div class="panel-scroll">
+
+        <!-- Canvas & Finish Setup -->
+        <div class="section">
+          <div class="section-title">Canvas Settings</div>
+          <div class="row">
+            <label>Aspect Ratio</label>
+            <select id="aspectRatio" onchange="updateCanvasRatio()">
+              <option value="9:16">9:16 (Phone)</option>
+              <option value="1:1">1:1 (Square)</option>
+              <option value="4:5">4:5 (Print / IG)</option>
+              <option value="16:9">16:9 (Landscape)</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>Color Preset</label>
+            <select id="paletteSelect" onchange="applyPalette(this.value)">
+              <option value="electric">Electric Blue & Rust</option>
+              <option value="bauhaus">Bauhaus Classic</option>
+              <option value="monochrome">Monochrome & Sand</option>
+              <option value="cyber">Ultraviolet & Neon</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>Noise & Grain</label>
+            <input type="range" id="grainAmount" min="0" max="60" value="28" oninput="render()" />
+          </div>
+        </div>
+
+        <!-- Layers Section -->
+        <div class="section">
+          <div class="section-title">
+            <span>Blocks / Layers</span>
+            <button class="small primary" onclick="addNewLayer()">+ Add Block</button>
+          </div>
+          <div id="layersList"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- State & Initial Composition Setup ---
+    const PALETTES = {
+      electric: ['#0077ff', '#ff4d00', '#0a0d14', '#e6e4df', '#101e36', '#6f7480'],
+      bauhaus: ['#d62828', '#003049', '#fdf0d5', '#f77f00', '#111111', '#eae2b7'],
+      monochrome: ['#121212', '#f4f1ea', '#888888', '#2b2b2b', '#d3cfc7', '#444444'],
+      cyber: ['#ff0055', '#00f0ff', '#2d006b', '#0d0221', '#fffa65', '#ffffff']
+    };
+
+    let layers = [];
+    let activeLayerId = null;
+
+    const canvas = document.getElementById('artCanvas');
+    const ctx = canvas.getContext('2d');
+    const viewport = document.getElementById('viewport');
+    const wrapper = document.getElementById('canvasWrapper');
+
+    // Base master export dimensions
+    let baseWidth = 1080;
+    let baseHeight = 1920;
+
+    function initLayers() {
+      // Create initial constructivist composition matching sample
+      layers = [
+        {
+          id: 'bg',
+          type: 'solid',
+          x: 0, y: 0, w: 100, h: 100,
+          color1: '#0a0d14'
+        },
+        {
+          id: 'grad-top',
+          type: 'gradient',
+          x: 0, y: 0, w: 100, h: 14,
+          color1: '#0088ff',
+          color2: '#05070a',
+          angle: 90
+        },
+        {
+          id: 'pinstripe-mid-left',
+          type: 'stripes',
+          x: 0, y: 14, w: 38, h: 44,
+          color1: '#757c88',
+          color2: '#ff4d00',
+          frequency: 5,
+          thickness: 1.5,
+          stripeAngle: 90
+        },
+        {
+          id: 'solid-blue-bar',
+          type: 'gradient',
+          x: 16, y: 14, w: 22, h: 44,
+          color1: '#0055ff',
+          color2: '#0038aa',
+          angle: 0
+        },
+        {
+          id: 'pinstripe-top-right',
+          type: 'stripes',
+          x: 38, y: 14, w: 62, h: 21,
+          color1: '#ff4400',
+          color2: '#0033aa',
+          frequency: 5,
+          thickness: 1.8,
+          stripeAngle: 90
+        },
+        {
+          id: 'pinstripe-mid-right',
+          type: 'stripes',
+          x: 38, y: 35, w: 62, h: 23,
+          color1: '#7e838f',
+          color2: '#ff5500',
+          frequency: 4,
+          thickness: 1.5,
+          stripeAngle: 0
+        },
+        {
+          id: 'spikes-band-mid',
+          type: 'spikes',
+          x: 0, y: 58, w: 100, h: 14,
+          color1: '#0a0c10',
+          color2: '#dedad1',
+          frequency: 3,
+          spikeDirection: 'right'
+        },
+        {
+          id: 'bottom-spikes',
+          type: 'spikes',
+          x: 0, y: 72, w: 25, h: 28,
+          color1: '#e1ded7',
+          color2: '#00a2ff',
+          frequency: 4,
+          spikeDirection: 'left'
+        },
+        {
+          id: 'bottom-dense-blue',
+          type: 'stripes',
+          x: 25, y: 72, w: 55, h: 28,
+          color1: '#001a66',
+          color2: '#0066ff',
+          frequency: 4,
+          thickness: 1.6,
+          stripeAngle: 0
+        },
+        {
+          id: 'bottom-fine-right',
+          type: 'stripes',
+          x: 80, y: 72, w: 20, h: 28,
+          color1: '#e0f2fe',
+          color2: '#0284c7',
+          frequency: 4,
+          thickness: 1.5,
+          stripeAngle: 90
+        }
+      ];
+      activeLayerId = layers[1].id;
+    }
+
+    // --- Dynamic Resizing & Aspect Ratio ---
+    function updateCanvasRatio() {
+      const val = document.getElementById('aspectRatio').value;
+      if (val === '9:16') { baseWidth = 1080; baseHeight = 1920; }
+      else if (val === '1:1') { baseWidth = 1200; baseHeight = 1200; }
+      else if (val === '4:5') { baseWidth = 1200; baseHeight = 1500; }
+      else if (val === '16:9') { baseWidth = 1920; baseHeight = 1080; }
+
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
+      resizeViewportCanvas();
+      render();
+    }
+
+    function resizeViewportCanvas() {
+      const pad = 30;
+      const availW = viewport.clientWidth - pad;
+      const availH = viewport.clientHeight - pad;
+      const aspect = baseWidth / baseHeight;
+
+      let w = availW;
+      let h = w / aspect;
+
+      if (h > availH) {
+        h = availH;
+        w = h * aspect;
+      }
+
+      wrapper.style.width = `${Math.floor(w)}px`;
+      wrapper.style.height = `${Math.floor(h)}px`;
+    }
+
+    window.addEventListener('resize', resizeViewportCanvas);
+
+    // --- Rendering Functions ---
+    function render() {
+      ctx.save();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Render each block layer
+      layers.forEach(layer => {
+        ctx.save();
+        const rx = (layer.x / 100) * canvas.width;
+        const ry = (layer.y / 100) * canvas.height;
+        const rw = (layer.w / 100) * canvas.width;
+        const rh = (layer.h / 100) * canvas.height;
+
+        // Clip block to its rectangular boundary
+        ctx.beginPath();
+        ctx.rect(rx, ry, rw, rh);
+        ctx.clip();
+
+        if (layer.type === 'solid') {
+          ctx.fillStyle = layer.color1;
+          ctx.fillRect(rx, ry, rw, rh);
+        }
+        else if (layer.type === 'gradient') {
+          const rad = ((layer.angle || 0) * Math.PI) / 180;
+          const cx = rx + rw / 2;
+          const cy = ry + rh / 2;
+          const length = Math.max(rw, rh);
+          const x1 = cx - Math.cos(rad) * (length / 2);
+          const y1 = cy - Math.sin(rad) * (length / 2);
+          const x2 = cx + Math.cos(rad) * (length / 2);
+          const y2 = cy + Math.sin(rad) * (length / 2);
+
+          const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+          grad.addColorStop(0, layer.color1);
+          grad.addColorStop(1, layer.color2);
+          ctx.fillStyle = grad;
+          ctx.fillRect(rx, ry, rw, rh);
+        }
+        else if (layer.type === 'stripes') {
+          // Fill background color
+          ctx.fillStyle = layer.color2;
+          ctx.fillRect(rx, ry, rw, rh);
+
+          // Draw high-frequency pinstripes
+          ctx.strokeStyle = layer.color1;
+          ctx.lineWidth = layer.thickness || 1.5;
+
+          const step = Math.max(2, (layer.frequency || 5));
+          const angle = layer.stripeAngle || 0;
+
+          ctx.translate(rx + rw / 2, ry + rh / 2);
+          ctx.rotate((angle * Math.PI) / 180);
+          const diag = Math.sqrt(rw * rw + rh * rh);
+
+          ctx.beginPath();
+          for (let p = -diag / 2; p <= diag / 2; p += step) {
+            ctx.moveTo(p, -diag / 2);
+            ctx.lineTo(p, diag / 2);
+          }
+          ctx.stroke();
+        }
+        else if (layer.type === 'spikes') {
+          ctx.fillStyle = layer.color1;
+          ctx.fillRect(rx, ry, rw, rh);
+
+          ctx.fillStyle = layer.color2;
+          const count = Math.max(1, layer.frequency || 3);
+          const dir = layer.spikeDirection || 'right';
+
+          if (dir === 'right' || dir === 'left') {
+            const toothH = rh / count;
+            for (let i = 0; i < count; i++) {
+              const yTop = ry + i * toothH;
+              const yMid = yTop + toothH / 2;
+              const yBot = yTop + toothH;
+
+              ctx.beginPath();
+              if (dir === 'right') {
+                ctx.moveTo(rx, yTop);
+                ctx.lineTo(rx + rw, yMid);
+                ctx.lineTo(rx, yBot);
+              } else {
+                ctx.moveTo(rx + rw, yTop);
+                ctx.lineTo(rx, yMid);
+                ctx.lineTo(rx + rw, yBot);
+              }
+              ctx.closePath();
+              ctx.fill();
+            }
+          } else {
+            const toothW = rw / count;
+            for (let i = 0; i < count; i++) {
+              const xLeft = rx + i * toothW;
+              const xMid = xLeft + toothW / 2;
+              const xRight = xLeft + toothW;
+
+              ctx.beginPath();
+              if (dir === 'down') {
+                ctx.moveTo(xLeft, ry);
+                ctx.lineTo(xMid, ry + rh);
+                ctx.lineTo(xRight, ry);
+              } else {
+                ctx.moveTo(xLeft, ry + rh);
+                ctx.lineTo(xMid, ry);
+                ctx.lineTo(xRight, ry + rh);
+              }
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+        }
+
+        ctx.restore();
+      });
+
+      // Procedural Grain / Riso Dither Pass
+      const grainIntensity = parseInt(document.getElementById('grainAmount').value, 10);
+      if (grainIntensity > 0) {
+        applyProceduralGrain(grainIntensity);
+      }
+
+      ctx.restore();
+    }
+
+    // High performance pixel grain generator
+    function applyProceduralGrain(amount) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const imgData = ctx.getImageData(0, 0, w, h);
+      const data = imgData.data;
+      const len = data.length;
+      const factor = amount * 1.8;
+
+      for (let i = 0; i < len; i += 4) {
+        const noise = (Math.random() - 0.5) * factor;
+        data[i] = Math.min(255, Math.max(0, data[i] + noise));
+        data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise));
+        data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise));
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    // --- Controls & Layer List Management ---
+    function renderLayerList() {
+      const container = document.getElementById('layersList');
+      container.innerHTML = '';
+
+      layers.forEach((layer, index) => {
+        const isActive = layer.id === activeLayerId;
+        const card = document.createElement('div');
+        card.className = `layer-card ${isActive ? 'active' : ''}`;
+
+        card.innerHTML = `
+          <div class="layer-header" onclick="selectLayer('${layer.id}')">
+            <span class="layer-title">
+              <span style="display:inline-block;width:12px;height:12px;background:${layer.color1};border-radius:2px;"></span>
+              ${layer.type.toUpperCase()} #${index + 1}
+            </span>
+            <div class="layer-actions" onclick="event.stopPropagation()">
+              <button class="small" onclick="moveLayer(${index}, -1)">▲</button>
+              <button class="small" onclick="moveLayer(${index}, 1)">▼</button>
+              <button class="small" onclick="deleteLayer('${layer.id}')">✕</button>
+            </div>
+          </div>
+          ${isActive ? `
+            <div class="layer-details">
+              <div class="row">
+                <label>Type</label>
+                <select onchange="updateActiveLayer('type', this.value)">
+                  <option value="solid" ${layer.type === 'solid' ? 'selected' : ''}>Solid Fill</option>
+                  <option value="gradient" ${layer.type === 'gradient' ? 'selected' : ''}>Gradient Field</option>
+                  <option value="stripes" ${layer.type === 'stripes' ? 'selected' : ''}>Fine Hatching/Stripes</option>
+                  <option value="spikes" ${layer.type === 'spikes' ? 'selected' : ''}>Spikes / Teeth</option>
+                </select>
+              </div>
+
+              <div class="grid-2">
+                <div class="row">
+                  <label>Color 1</label>
+                  <input type="color" value="${layer.color1}" onchange="updateActiveLayer('color1', this.value)" />
+                </div>
+                ${layer.type !== 'solid' ? `
+                <div class="row">
+                  <label>Color 2</label>
+                  <input type="color" value="${layer.color2 || '#000000'}" onchange="updateActiveLayer('color2', this.value)" />
+                </div>
+                ` : ''}
+              </div>
+
+              <div class="grid-2">
+                <div class="row"><label>X %</label><input type="number" min="0" max="100" value="${layer.x}" onchange="updateActiveLayer('x', +this.value)" /></div>
+                <div class="row"><label>Y %</label><input type="number" min="0" max="100" value="${layer.y}" onchange="updateActiveLayer('y', +this.value)" /></div>
+              </div>
+              <div class="grid-2">
+                <div class="row"><label>W %</label><input type="number" min="1" max="100" value="${layer.w}" onchange="updateActiveLayer('w', +this.value)" /></div>
+                <div class="row"><label>H %</label><input type="number" min="1" max="100" value="${layer.h}" onchange="updateActiveLayer('h', +this.value)" /></div>
+              </div>
+
+              ${layer.type === 'stripes' ? `
+                <div class="row">
+                  <label>Spacing</label>
+                  <input type="range" min="2" max="25" step="1" value="${layer.frequency || 5}" oninput="updateActiveLayer('frequency', +this.value)" />
+                </div>
+                <div class="row">
+                  <label>Angle</label>
+                  <select onchange="updateActiveLayer('stripeAngle', +this.value)">
+                    <option value="0" ${layer.stripeAngle === 0 ? 'selected' : ''}>Horizontal (0°)</option>
+                    <option value="90" ${layer.stripeAngle === 90 ? 'selected' : ''}>Vertical (90°)</option>
+                    <option value="45" ${layer.stripeAngle === 45 ? 'selected' : ''}>Diagonal (45°)</option>
+                  </select>
+                </div>
+              ` : ''}
+
+              ${layer.type === 'spikes' ? `
+                <div class="row">
+                  <label>Spike Count</label>
+                  <input type="range" min="1" max="12" step="1" value="${layer.frequency || 3}" oninput="updateActiveLayer('frequency', +this.value)" />
+                </div>
+                <div class="row">
+                  <label>Direction</label>
+                  <select onchange="updateActiveLayer('spikeDirection', this.value)">
+                    <option value="right" ${layer.spikeDirection === 'right' ? 'selected' : ''}>Points Right</option>
+                    <option value="left" ${layer.spikeDirection === 'left' ? 'selected' : ''}>Points Left</option>
+                    <option value="down" ${layer.spikeDirection === 'down' ? 'selected' : ''}>Points Down</option>
+                    <option value="up" ${layer.spikeDirection === 'up' ? 'selected' : ''}>Points Up</option>
+                  </select>
+                </div>
+              ` : ''}
+
+              ${layer.type === 'gradient' ? `
+                <div class="row">
+                  <label>Angle</label>
+                  <input type="range" min="0" max="360" value="${layer.angle || 0}" oninput="updateActiveLayer('angle', +this.value)" />
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function selectLayer(id) {
+      activeLayerId = id;
+      renderLayerList();
+    }
+
+    function updateActiveLayer(key, val) {
+      const l = layers.find(item => item.id === activeLayerId);
+      if (l) {
+        l[key] = val;
+        render();
+        if (key === 'type') renderLayerList();
+      }
+    }
+
+    function addNewLayer() {
+      const pal = PALETTES[document.getElementById('paletteSelect').value];
+      const newId = 'layer_' + Date.now();
+      layers.push({
+        id: newId,
+        type: 'stripes',
+        x: 10, y: 10, w: 80, h: 20,
+        color1: pal[Math.floor(Math.random() * pal.length)],
+        color2: pal[Math.floor(Math.random() * pal.length)],
+        frequency: 6,
+        thickness: 1.5,
+        stripeAngle: 90
+      });
+      activeLayerId = newId;
+      renderLayerList();
+      render();
+    }
+
+    function deleteLayer(id) {
+      if (layers.length <= 1) return;
+      layers = layers.filter(l => l.id !== id);
+      if (activeLayerId === id) activeLayerId = layers[0].id;
+      renderLayerList();
+      render();
+    }
+
+    function moveLayer(index, dir) {
+      const target = index + dir;
+      if (target < 0 || target >= layers.length) return;
+      const temp = layers[index];
+      layers[index] = layers[target];
+      layers[target] = temp;
+      renderLayerList();
+      render();
+    }
+
+    function applyPalette(paletteKey) {
+      const p = PALETTES[paletteKey];
+      layers.forEach((layer, i) => {
+        layer.color1 = p[i % p.length];
+        layer.color2 = p[(i + 2) % p.length];
+      });
+      renderLayerList();
+      render();
+    }
+
+    function randomizeArtwork() {
+      const paletteKeys = Object.keys(PALETTES);
+      const chosenPalette = PALETTES[paletteKeys[Math.floor(Math.random() * paletteKeys.length)]];
+      document.getElementById('paletteSelect').value = paletteKeys.find(k => PALETTES[k] === chosenPalette);
+
+      const count = Math.floor(Math.random() * 4) + 6;
+      const newLayers = [];
+
+      // Base background
+      newLayers.push({
+        id: 'layer_0',
+        type: 'solid',
+        x: 0, y: 0, w: 100, h: 100,
+        color1: chosenPalette[chosenPalette.length - 1]
+      });
+
+      // Procedural constructivist split layout
+      let curY = 0;
+      for (let i = 1; i < count; i++) {
+        const h = Math.floor(Math.random() * 25) + 10;
+        const typeChoice = ['stripes', 'spikes', 'gradient', 'stripes'][Math.floor(Math.random() * 4)];
+        const c1 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
+        let c2 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
+        while (c2 === c1) c2 = chosenPalette[Math.floor(Math.random() * chosenPalette.length)];
+
+        // Split some rows horizontally into columns
+        const splitRow = Math.random() > 0.4;
+        if (splitRow) {
+          const splitX = Math.floor(Math.random() * 50) + 25;
+          newLayers.push({
+            id: `layer_${i}_a`,
+            type: typeChoice,
+            x: 0, y: curY, w: splitX, h: h,
+            color1: c1, color2: c2,
+            frequency: Math.floor(Math.random() * 6) + 3,
+            thickness: 1.5,
+            stripeAngle: Math.random() > 0.5 ? 90 : 0,
+            spikeDirection: 'right'
+          });
+          newLayers.push({
+            id: `layer_${i}_b`,
+            type: Math.random() > 0.5 ? 'stripes' : 'gradient',
+            x: splitX, y: curY, w: 100 - splitX, h: h,
+            color1: c2, color2: chosenPalette[0],
+            frequency: Math.floor(Math.random() * 6) + 3,
+            thickness: 1.5,
+            stripeAngle: Math.random() > 0.5 ? 0 : 90,
+            angle: 90
+          });
+        } else {
+          newLayers.push({
+            id: `layer_${i}`,
+            type: typeChoice,
+            x: 0, y: curY, w: 100, h: h,
+            color1: c1, color2: c2,
+            frequency: Math.floor(Math.random() * 5) + 2,
+            thickness: 1.5,
+            stripeAngle: Math.random() > 0.5 ? 90 : 0,
+            spikeDirection: Math.random() > 0.5 ? 'right' : 'left',
+            angle: Math.floor(Math.random() * 4) * 90
+          });
+        }
+
+        curY += h;
+        if (curY >= 100) break;
+      }
+
+      layers = newLayers;
+      activeLayerId = layers[0].id;
+      renderLayerList();
+      render();
+    }
+
+    // --- Export High-Res PNG ---
+    function exportPNG() {
+      // Temporarily render at full scale
+      render();
+      const link = document.createElement('a');
+      link.download = `constructivist-art-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    // --- Boot ---
+    initLayers();
+    updateCanvasRatio();
+    renderLayerList();
+  </script>
+</body>
+</html>
